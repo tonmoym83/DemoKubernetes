@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = "springboot-app"
-        DOCKER_TAG = "latest"
+    tools {
+        maven 'Maven_3.8.8' // configure in Jenkins tools
+        jdk 'JDK17'         // configure in Jenkins tools
     }
 
     stages {
@@ -13,33 +13,26 @@ pipeline {
             }
         }
 
-        stage('Build JAR') {
+        stage('Build') {
             steps {
-                bat 'mvnw clean package -DskipTests'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Build Docker Image') {
+
+        stage('Docker Build') {
             steps {
-                bat "docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ."
+                script {
+                    docker.build("springboot-app:latest")
+                }
             }
         }
 
-        stage('Run on Docker Desktop') {
+        stage('Deploy to Docker Desktop') {
             steps {
-                // Stop old container if running
-                bat "docker rm -f springboot-container || echo 'No old container'"
-
-                // Run new container locally
-                bat "docker run -d -p 8080:8080 --name springboot-container %DOCKER_IMAGE%:%DOCKER_TAG%"
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                // Apply manifests to Docker Desktop’s built-in Kubernetes
-                bat "kubectl apply -f k8s\\deployment.yaml"
-                bat "kubectl apply -f k8s\\service.yaml"
+                script {
+                    docker.image("springboot-app:latest").run("-p 8080:8080")
+                }
             }
         }
     }
