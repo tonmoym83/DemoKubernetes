@@ -18,21 +18,21 @@ pipeline {
             }
         }
 
-
-        stage('Docker Build') {
+stage('Docker Build') {
             steps {
-                script {
-                    docker.build("springboot-app:latest")
-                }
+                bat "docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ."
             }
         }
 
         stage('Deploy to Docker Desktop') {
             steps {
-                script {
-                    docker.image("springboot-app:latest").run("-p 8080:8080")
-                }
+                // Stop old container if running
+                bat "docker rm -f springboot-container || echo No old container"
+
+                // Run new container
+                bat "docker run -d -p 8080:8080 --name springboot-container %DOCKER_IMAGE%:%DOCKER_TAG%"
             }
         }
     }
+
 }
