@@ -17,12 +17,14 @@ pipeline {
                 bat 'mvn clean package -DskipTests'
             }
         }
+stage('Docker Build') {
+    steps {
+        bat """
+            docker build -t %IMAGE_NAME%:%IMAGE_TAG% .
+        """
+    }
+}
 
- stage('Docker Build') {
-            steps {
-                bat "docker build -t %IMAGE_NAME%:%IMAGE_TAG% ."
-            }
-        }
 
         stage('Deploy to Docker Desktop') {
             steps {
