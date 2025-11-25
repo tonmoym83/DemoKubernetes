@@ -30,15 +30,13 @@ stage('Docker Build') {
 }
 
 
-        stage('Deploy to Docker Desktop') {
-            steps {
-                // Stop old container if running
-                bat "docker rm -f springboot-container || echo No old container"
-
-                // Run new container
-                bat "docker run -d -p 8080:8080 --name springboot-container %DOCKER_IMAGE%:%DOCKER_TAG%"
-            }
-        }
+       stage('Deploy to Docker Desktop') {
+    steps {
+        bat """
+            docker rm -f springboot-container || echo No old container
+            docker run -d -p 8080:8080 --name springboot-container demo-kubernetes:latest
+        """
     }
+}
 
 }
