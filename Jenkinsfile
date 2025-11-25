@@ -4,6 +4,10 @@ pipeline {
   tools {
         maven 'Maven3'   // matches the name in Global Tool Config
     }
+environment {
+    IMAGE_NAME = "demo-kubernetes"
+    IMAGE_TAG  = "latest"
+}
 
     stages {
         stage('Checkout') {
